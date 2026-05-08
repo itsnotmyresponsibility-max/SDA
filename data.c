@@ -1,0 +1,356 @@
+#include "data.h"
+
+struct Project *projects = NULL;
+int project_count = 0;
+int capacity = 0;
+
+
+void expand_array(int extra) {
+    int new_capacity = capacity + extra;
+
+    struct Project *new_array =
+        (struct Project*)malloc(new_capacity * sizeof(struct Project));
+
+    if (!new_array) {
+        printf("Memory allocation error!\n");
+        exit(1);
+    }
+
+    for (int i = 0; i < project_count; i++) {
+        new_array[i] = projects[i];
+    }
+
+    free(projects);
+    projects = new_array;
+    capacity = new_capacity;
+}
+
+
+void add_project() {
+    if (project_count >= capacity) {
+        expand_array(2);
+    }
+
+    printf("Enter name: ");
+    scanf(" %[^\n]", projects[project_count].name);
+
+    printf("Enter description: ");
+    scanf(" %[^\n]", projects[project_count].description);
+
+    printf("Enter status: ");
+    scanf(" %[^\n]", projects[project_count].status);
+
+    printf("Enter start date: ");
+    scanf(" %[^\n]", projects[project_count].start_date);
+
+    printf("Enter end date: ");
+    scanf(" %[^\n]", projects[project_count].end_date);
+
+    project_count++;
+
+    printf("Project added successfully.\n");
+}
+
+
+void show_projects() {
+    if (project_count == 0) {
+        printf("No projects.\n");
+        return;
+    }
+
+    for (int i = 0; i < project_count; i++) {
+        printf("\nProject #%d\n", i);
+        printf("Name: %s\n", projects[i].name);
+        printf("Description: %s\n", projects[i].description);
+        printf("Status: %s\n", projects[i].status);
+        printf("Start Date: %s\n", projects[i].start_date);
+        printf("End Date: %s\n", projects[i].end_date);
+    }
+}
+
+
+void edit_project() {
+    int index;
+
+    printf("Enter project index: ");
+    scanf("%d", &index);
+
+    if (index < 0 || index >= project_count) {
+        printf("Invalid index!\n");
+        return;
+    }
+
+    int choice;
+
+    printf("\n1 - Name\n");
+    printf("2 - Description\n");
+    printf("3 - Status\n");
+    printf("4 - Start Date\n");
+    printf("5 - End Date\n");
+    printf("Select field to change: ");
+    scanf("%d", &choice);
+
+    switch (choice) {
+
+        case 1:
+            printf("New name: ");
+            scanf(" %[^\n]", projects[index].name);
+            break;
+
+        case 2:
+            printf("New description: ");
+            scanf(" %[^\n]", projects[index].description);
+            break;
+
+        case 3:
+            printf("New status: ");
+            scanf(" %[^\n]", projects[index].status);
+            break;
+
+        case 4:
+            printf("New start date: ");
+            scanf(" %[^\n]", projects[index].start_date);
+            break;
+
+        case 5:
+            printf("New end date: ");
+            scanf(" %[^\n]", projects[index].end_date);
+            break;
+
+        default:
+            printf("Invalid choice!\n");
+            return;
+    }
+
+    printf("Project updated successfully.\n");
+}
+
+
+void search_project() {
+    char search_name[100];
+    int found = 0;
+
+    printf("Enter project name to search: ");
+    scanf(" %[^\n]", search_name);
+
+    for (int i = 0; i < project_count; i++) {
+
+        if (strcmp(projects[i].name, search_name) == 0) {
+
+            printf("\nProject found (index %d)\n", i);
+            printf("Name: %s\n", projects[i].name);
+            printf("Description: %s\n", projects[i].description);
+            printf("Status: %s\n", projects[i].status);
+            printf("Start Date: %s\n", projects[i].start_date);
+            printf("End Date: %s\n", projects[i].end_date);
+
+            found = 1;
+            break;
+        }
+    }
+
+    if (!found) {
+        printf("Project not found.\n");
+    }
+}
+
+
+void sort_projects() {
+    int choice;
+
+    if (project_count == 0) {
+        printf("No projects to sort.\n");
+        return;
+    }
+
+    printf("\nSort by:\n");
+    printf("1 - Name\n");
+    printf("2 - Status\n");
+    printf("3 - Start Date\n");
+    printf("4 - End Date\n");
+    printf("Your choice: ");
+    scanf("%d", &choice);
+
+    for (int i = 0; i < project_count - 1; i++) {
+
+        for (int j = 0; j < project_count - i - 1; j++) {
+
+            int compare = 0;
+
+            switch (choice) {
+
+                case 1:
+                    compare = strcmp(projects[j].name,
+                                     projects[j + 1].name);
+                    break;
+
+                case 2:
+                    compare = strcmp(projects[j].status,
+                                     projects[j + 1].status);
+                    break;
+
+                case 3:
+                    compare = strcmp(projects[j].start_date,
+                                     projects[j + 1].start_date);
+                    break;
+
+                case 4:
+                    compare = strcmp(projects[j].end_date,
+                                     projects[j + 1].end_date);
+                    break;
+
+                default:
+                    printf("Invalid choice!\n");
+                    return;
+            }
+
+            if (compare > 0) {
+                struct Project temp = projects[j];
+                projects[j] = projects[j + 1];
+                projects[j + 1] = temp;
+            }
+        }
+    }
+
+    printf("Projects sorted successfully.\n");
+}
+
+
+void insert_project() {
+    int index;
+
+    printf("Enter position for new project: ");
+    scanf("%d", &index);
+
+    if (index < 0 || index > project_count) {
+        printf("Invalid index!\n");
+        return;
+    }
+
+    if (project_count >= capacity) {
+        expand_array(2);
+    }
+
+    for (int i = project_count; i > index; i--) {
+        projects[i] = projects[i - 1];
+    }
+
+    printf("Enter name: ");
+    scanf(" %[^\n]", projects[index].name);
+
+    printf("Enter description: ");
+    scanf(" %[^\n]", projects[index].description);
+
+    printf("Enter status: ");
+    scanf(" %[^\n]", projects[index].status);
+
+    printf("Enter start date: ");
+    scanf(" %[^\n]", projects[index].start_date);
+
+    printf("Enter end date: ");
+    scanf(" %[^\n]", projects[index].end_date);
+
+    project_count++;
+
+    printf("Project inserted successfully.\n");
+}
+
+
+void remove_project_by_index() {
+    int index;
+
+    if (project_count == 0) {
+        printf("No projects to delete.\n");
+        return;
+    }
+
+    printf("Enter project index to delete: ");
+    scanf("%d", &index);
+
+    if (index < 0 || index >= project_count) {
+        printf("Invalid index!\n");
+        return;
+    }
+
+    for (int i = index; i < project_count - 1; i++) {
+        projects[i] = projects[i + 1];
+    }
+
+    project_count--;
+
+    printf("Project deleted successfully.\n");
+}
+
+
+void remove_last_project() {
+    if (project_count == 0) {
+        printf("Nothing to delete.\n");
+        return;
+    }
+
+    project_count--;
+
+    printf("Last project removed.\n");
+}
+
+
+void save_to_file() {
+
+    FILE *file = fopen("projects.dat", "wb");
+
+    if (file == NULL) {
+        printf("File opening error!\n");
+        return;
+    }
+
+    fwrite(&project_count, sizeof(int), 1, file);
+
+    fwrite(projects,
+           sizeof(struct Project),
+           project_count,
+           file);
+
+    fclose(file);
+
+    printf("Projects saved to file.\n");
+}
+
+
+void load_from_file() {
+
+    FILE *file = fopen("projects.dat", "rb");
+
+    if (file == NULL) {
+        printf("File not found.\n");
+        return;
+    }
+
+    fread(&project_count, sizeof(int), 1, file);
+
+    capacity = project_count;
+
+    projects = (struct Project*)malloc(
+            capacity * sizeof(struct Project)
+    );
+
+    fread(projects,
+          sizeof(struct Project),
+          project_count,
+          file);
+
+    fclose(file);
+
+    printf("Projects loaded from file.\n");
+}
+
+
+void free_all() {
+
+    free(projects);
+
+    projects = NULL;
+    project_count = 0;
+    capacity = 0;
+}//
+// Created by User on 08.05.2026.
+//
